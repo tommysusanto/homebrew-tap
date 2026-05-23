@@ -231,6 +231,11 @@ class Ytalk < Formula
   end
 
   def post_install
+    Dir.glob(libexec/"lib/python*/site-packages/**/*.so").each do |so|
+      next if File.symlink?(so)
+      system "install_name_tool", "-id", "@rpath/#{File.basename(so)}", so
+      system "codesign", "--force", "--sign", "-", so
+    end
     ohai "Run 'ollama pull gemma3:4b' to download a chat model"
   end
 
